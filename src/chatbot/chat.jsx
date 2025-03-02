@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 
-const socket = io("https://thinkbot-ggwc.onrender.com");
+const socket = io("https://thinkbot-backend.onrender.com");
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
