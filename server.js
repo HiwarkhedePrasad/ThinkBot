@@ -28,7 +28,7 @@ io.on("connection", (socket) => {
         { inputs: message },
         {
           headers: {
-            Authorization: "Bearer YOUR_API_TOKEN",
+            Authorization: `Bearer ${process.env.YOUR_API_TOKEN}`,
           },
           responseType: "stream",
         }
