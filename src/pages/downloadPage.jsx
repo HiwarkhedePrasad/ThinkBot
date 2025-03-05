@@ -6,7 +6,7 @@ const Download = () => {
     <div className="h-screen flex flex-col items-center justify-center bg-[#1f1f1f] text-white">
       <h2 className="text-3xl font-bold mb-2">🚀 Android App Coming Soon!</h2>
       <p className="text-gray-300 mb-4">
-        Our Android app launches on <strong>Feb 15, 2025</strong>. Stay tuned!
+        Our Android app launches <strong>comming Soon</strong>. Stay tuned!
       </p>
 
       <div className="flex items-center gap-4">
