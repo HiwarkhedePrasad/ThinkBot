@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-
+import { useNavigate } from 'react-router-dom';
 const SideBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Home");
-
+   const navigate = useNavigate();
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -44,11 +44,12 @@ const SideBar = () => {
   };
 
   const handleItemClick = (item) => {
-    setActiveItem(item.name);
-    setIsMobileMenuOpen(false);
-    // Here you would typically navigate to the path
-    console.log(`Navigating to: ${item.path}`);
-  };
+  setActiveItem(item.name);
+  setIsMobileMenuOpen(false);
+  
+  // Replace the console.log with this line
+  navigate(item.path); 
+};
 
   return (
     <>
@@ -174,3 +175,4 @@ const SideBar = () => {
 };
 
 export default SideBar;
+
