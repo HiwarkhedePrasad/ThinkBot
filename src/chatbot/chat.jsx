@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 
 const socket = io("https://thinkbot-backend.onrender.com");
@@ -6,6 +6,8 @@ const socket = io("https://thinkbot-backend.onrender.com");
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [botTyping, setBotTyping] = useState(false);
+  const [input, setInput] = useState("");
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     socket.on("bot_message_chunk", (chunk) => {
@@ -15,12 +17,10 @@ const Chatbot = () => {
           prevMessages.length > 0 &&
           prevMessages[prevMessages.length - 1].sender === "Bot"
         ) {
-          // Update last bot message with the new chunk
           const updatedMessages = [...prevMessages];
           updatedMessages[updatedMessages.length - 1].text += chunk;
           return updatedMessages;
         } else {
-          // Start a new bot message
           return [...prevMessages, { sender: "Bot", text: chunk }];
         }
       });
@@ -36,52 +36,72 @@ const Chatbot = () => {
     };
   }, []);
 
-  const [input, setInput] = useState("");
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, botTyping]);
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (input.trim()) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: "User", text: input },
-      ]);
-      socket.emit("user_message", input);
-      setInput("");
-    }
+    if (!input.trim()) return;
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: "User", text: input },
+    ]);
+    socket.emit("user_message", input);
+    setInput("");
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-[#1f1f1f] text-white">
-      <h2 className="text-2xl font-semibold mb-4">Thinkbot</h2>
-      <div className="w-[90%] md:w-[50%] h-[400px] overflow-y-auto bg-[#2a2a2a] p-4 rounded-lg shadow-lg">
-        {messages.map((msg, index) => (
-          <div key={index} className="mb-2">
-            <strong
-              className={
-                msg.sender === "User" ? "text-blue-400" : "text-green-400"
-              }
+    <div className="h-screen flex flex-col bg-[#f7f7f8] text-gray-900">
+      <header className="bg-white shadow p-4 text-center text-2xl font-bold">
+        Thinkbot
+      </header>
+
+      <main className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`flex ${
+                msg.sender === "User" ? "justify-end" : "justify-start"
+              }`}
             >
-              {msg.sender}:
-            </strong>{" "}
-            {msg.text}
-          </div>
-        ))}
-        {botTyping && (
-          <div className="text-green-400">
-            <strong>Bot:</strong> Typing...
-          </div>
-        )}
-      </div>
-      <form onSubmit={sendMessage} className="w-[90%] md:w-[50%] mt-4 flex">
+              <div
+                className={`rounded-xl px-4 py-2 max-w-[70%] break-words ${
+                  msg.sender === "User"
+                    ? "bg-blue-500 text-white rounded-br-none"
+                    : "bg-gray-200 text-gray-900 rounded-bl-none"
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+
+          {botTyping && (
+            <div className="flex justify-start">
+              <div className="bg-gray-200 text-gray-900 rounded-bl-none rounded-xl px-4 py-2 animate-pulse">
+                Typing...
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef} />
+        </div>
+      </main>
+
+      <form
+        onSubmit={sendMessage}
+        className="bg-white p-4 flex max-w-4xl mx-auto w-full shadow-t"
+      >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 p-2 rounded-l-lg border-none bg-[#333] text-white focus:outline-none"
           placeholder="Type your message..."
+          className="flex-1 border border-gray-300 rounded-l-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           type="submit"
-          className="p-2 bg-blue-500 rounded-r-lg hover:bg-blue-600 transition"
+          className="bg-blue-500 text-white px-6 py-2 rounded-r-full hover:bg-blue-600 transition"
         >
           Send
         </button>
